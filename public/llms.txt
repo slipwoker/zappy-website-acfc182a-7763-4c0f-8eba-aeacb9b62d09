@@ -1,0 +1,57 @@
+# מוטי ניסם — Generative Engine Optimization Map
+
+> Moti Nissim specializes in paid advertising services for businesses, focusing on digital marketing and sponsored content campaigns. The business helps companies reach their target audiences through strategic paid advertising solutions.
+
+---
+
+## Pages
+
+### בית
+https://-acfc182a.zappy5.app
+מוטי ניסם מתמחה בשירותי פרסום ממומן לעסקים קטנים ובינוניים. קמפיינים דיגיטליים אפקטיביים שמגיעים לקהל היעד שלך ומניבים החזר השקעה מדיד.
+
+### שירותים
+https://-acfc182a.zappy5.app/services
+גלה את מגוון שירותי הפרסום הממומן שלנו: ניהול קמפיינים בגוגל ופייסבוק, אופטימיזציה שוטפת ואסטרטגיה דיגיטלית. פתרונות מותאמים לכל עסק.
+
+### מקרי בוחן
+https://-acfc182a.zappy5.app/case-studies
+צפה במקרי בוחן של עסקים שהכפילו את המכירות עם פרסום ממומן אפקטיבי. תוצאות אמיתיות, נתונים מדידים וסיפורי הצלחה שמעוררים השראה.
+
+### צור קשר
+https://-acfc182a.zappy5.app/contact
+מוכן להשקיע בפרסום ממומן שעובד? צור קשר עכשיו לייעוץ ללא התחייבות. נבנה יחד אסטרטגיה דיגיטלית שתביא את העסק שלך ליעדים החדשים.
+
+## Legal & Policy
+
+### Privacy Policy
+https://-acfc182a.zappy5.app/privacy
+Information about how user data is collected, stored, and protected.
+
+### Terms & Conditions
+https://-acfc182a.zappy5.app/terms
+Legal terms describing service usage, rights, and policies.
+
+### Accessibility Statement
+https://-acfc182a.zappy5.app/accessibility
+Information about WCAG compliance and accessibility features.
+
+---
+
+# Business Context (for LLM understanding)
+
+## About מוטי ניסם
+Moti Nissim specializes in paid advertising services for businesses, focusing on digital marketing and sponsored content campaigns. The business helps companies reach their target audiences through strategic paid advertising solutions.
+
+## Target Audience
+עסקים
+
+## Industry
+שיווק דיגיטלי
+
+---
+
+# Additional Resources
+
+- **Sitemap**: https://-acfc182a.zappy5.app/sitemap.xml
+- **Robots.txt**: https://-acfc182a.zappy5.app/robots.txt

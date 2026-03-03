@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <title>סיפורי הצלחה ותוצאות מוכחות — מוטי ניסם</title>
+    <meta name="description" content="צפה במקרי בוחן של עסקים שהכפילו את המכירות עם פרסום ממומן אפקטיבי. תוצאות אמיתיות, נתונים מדידים וסיפורי הצלחה שמעוררים השראה.">
+    <meta name="keywords" content="איך לעשות פרסום ממומן אפקטיבי, פרסום ממומן לעסקים קטנים ובינוניים, תוצאות פרסום דיגיטלי, סיפורי הצלחה שיווק, עסקים">
+    
+    <!-- Zappy Analytics -->
+<script>
+(function() {
+  'use strict';
+  
+  // Configuration
+  var config = {
+    websiteId: 'acfc182a-7763-4c0f-8eba-aeacb9b62d09',
+    apiUrl: 'https://api.zappy5.com/api/analytics/track',
+    sessionDuration: 30 * 60 * 1000, // 30 minutes
+    visitorDuration: 30 * 24 * 60 * 60 * 1000, // 30 days
+    trackPageViews: true,
+    trackClicks: true,
+    trackFormSubmissions: true
+  };
+  
+  // Generate or retrieve persistent visitor ID (30 days)
+  function getVisitorId() {
+    var visitorKey = 'zappy_visitor_' + config.websiteId;
+    var visitor = null;
+    
+    try {
+      visitor = localStorage.getItem(visitorKey);
+      if (visitor) {
+        var visitorData = JSON.parse(visitor);
+        var now = Date.now();
+        
+        // Check if visitor ID is still valid (30 days)
+        if (now - visitorData.created < config.visitorDuration) {
+          // Update last seen timestamp
+          visitorData.lastSeen = now;
+          localStorage.setItem(visitorKey, JSON.stringify(visitorData));
+          return visitorData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: LocalStorage not available');
+    }
+    
+    // Generate new visitor ID
+    var newVisitorId = 'zv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      localStorage.setItem(visitorKey, JSON.stringify({
+        id: newVisitorId,
+        created: Date.now(),
+        lastSeen: Date.now()
+      }));
+    } catch (e) {
+      // Continue without local storage
+    }
+    
+    return newVisitorId;
+  }
+  
+  // Generate or retrieve session ID (30 minutes)
+  function getSessionId() {
+    var sessionKey = 'zappy_session_' + config.websiteId;
+    var session = null;
+    
+    try {
+      session = sessionStorage.getItem(sessionKey);
+      if (session) {
+        var sessionData = JSON.parse(session);
+        var now = Date.now();
+        
+        // Check if session is still valid
+        if (now - sessionData.timestamp < config.sessionDuration) {
+          // Update timestamp
+          sessionData.timestamp = now;
+          sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+          return sessionData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: SessionStorage not available');
+    }
+    
+    // Generate new session ID
+    var newSessionId = 'zs_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      sessionStorage.setItem(sessionKey, JSON.stringify({
+        id: newSessionId,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      // Continue without session storage
+    }
+    
+    return newSessionId;
+  }
+  
+  var visitorId = getVisitorId();
+  var sessionId = getSessionId();
+  
+  // Track an event
+  function trackEvent(eventType, data) {
+    data = data || {};
+    
+    var eventData = {
+      website_id: config.websiteId,
+      event_type: eventType,
+      page_path: window.location.pathname,
+      referrer: document.referrer || 'direct',
+      visitor_id: visitorId,
+      session_id: sessionId,
+      metadata: data
+    };
+    
+    // Use sendBeacon if available (better for page unload events)
+    if (navigator.sendBeacon) {
+      var blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
+      navigator.sendBeacon(config.apiUrl, blob);
+    } else {
+      // Fallback to fetch
+      fetch(config.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData),
+        keepalive: true
+      }).catch(function(error) {
+        console.warn('Zappy Analytics: Failed to track event', error);
+      });
+    }
+  }
+  
+  // Track page view
+  if (config.trackPageViews) {
+    trackEvent('pageview', {
+      title: document.title,
+      url: window.location.href
+    });
+  }
+  
+  // Track clicks on important elements
+  if (config.trackClicks) {
+    document.addEventListener('click', function(e) {
+      var target = e.target;
+      
+      // Track button clicks (counted as actions)
+      if (target.tagName === 'BUTTON' || target.closest('button')) {
+        var button = target.tagName === 'BUTTON' ? target : target.closest('button');
+        trackEvent('click', {
+          element: 'button',
+          text: button.textContent.trim().substring(0, 100),
+          id: button.id || null,
+          class: button.className || null
+        });
+      }
+      
+      // Track link clicks (navigation - not counted as actions)
+      else if (target.tagName === 'A' || target.closest('a')) {
+        var link = target.tagName === 'A' ? target : target.closest('a');
+        trackEvent('navigation', {
+          element: 'link',
+          text: link.textContent.trim().substring(0, 100),
+          href: link.href,
+          external: link.hostname !== window.location.hostname
+        });
+      }
+    }, true);
+  }
+  
+  // Track form submissions
+  if (config.trackFormSubmissions) {
+    document.addEventListener('submit', function(e) {
+      var form = e.target;
+      
+      trackEvent('form_submit', {
+        form_id: form.id || null,
+        form_name: form.name || null,
+        form_action: form.action || null,
+        form_method: form.method || 'GET'
+      });
+    }, true);
+  }
+  
+  // Track time on page (send on page unload)
+  var pageLoadTime = Date.now();
+  
+  window.addEventListener('beforeunload', function() {
+    var timeOnPage = Math.floor((Date.now() - pageLoadTime) / 1000); // in seconds
+    
+    trackEvent('page_unload', {
+      time_on_page: timeOnPage,
+      page_path: window.location.pathname
+    });
+  });
+  
+  // Expose tracking function globally for custom events
+  window.zappyAnalytics = {
+    track: trackEvent,
+    getVisitorId: function() { return visitorId; },
+    getSessionId: function() { return sessionId; }
+  };
+  
+})();
+</script>
+<!-- End Zappy Analytics -->
+    <meta property="og:title" content="סיפורי הצלחה ותוצאות מוכחות — מוטי ניסם">
+  <meta property="og:description" content="צפה במקרי בוחן של עסקים שהכפילו את המכירות עם פרסום ממומן אפקטיבי. תוצאות אמיתיות, נתונים מדידים וסיפורי הצלחה שמעוררים השראה.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="he_IL">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="סיפורי הצלחה ותוצאות מוכחות — מוטי ניסם">
+  <meta name="twitter:description" content="צפה במקרי בוחן של עסקים שהכפילו את המכירות עם פרסום ממומן אפקטיבי. תוצאות אמיתיות, נתונים מדידים וסיפורי הצלחה שמעוררים השראה.">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <!-- Cookie Consent -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.css">
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.umd.js"></script>
+    <!-- Mickidum Accessibility Toolbar -->
+    <script src="https://cdn.jsdelivr.net/gh/mickidum/acc_toolbar/acctoolbar/acctoolbar.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+
+    <style id="zappy-dropdown-submenu-styles">
+      /* ========== DESKTOP DROPDOWN SUBMENU STYLES ========== */
+      /* Base styles for dropdown submenus - parent must be positioned */
+      .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { position: relative; }
+      /* Submenu base - hidden by default */
+      .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { display: block !important; position: absolute !important; top: 100%; left: 0; min-width: 220px; background: white; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); padding: 8px 0; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; z-index: 1000; list-style: none; pointer-events: none; }
+      /* CRITICAL: Desktop hover styles to show dropdown */
+      .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Submenu item styling */
+      .sub-menu li { list-style: none; margin: 0; padding: 0; }
+      .sub-menu a { display: block !important; padding: 10px 16px !important; color: #333 !important; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color 0.2s; }
+      .sub-menu a:hover { background-color: #f5f5f5; }
+      /* RTL (Hebrew/Arabic) dropdown positioning */
+      [dir="rtl"] .nav-menu .sub-menu, [dir="rtl"] nav .sub-menu, [dir="rtl"] .navbar .sub-menu, html[lang="he"] .nav-menu .sub-menu, html[lang="he"] nav .sub-menu, html[lang="he"] .navbar .sub-menu, html[lang="ar"] .nav-menu .sub-menu, html[lang="ar"] nav .sub-menu, html[lang="ar"] .navbar .sub-menu { left: auto !important; right: 0 !important; }
+      /* Hide empty dropdown menus */
+      .sub-menu:empty, .sub-menu:not(:has(li:not(.zappy-hidden-menu-item))), .sub-menu:not(:has(li)) { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+      /* Desktop: show submenu on Menu Group hover */
+      li:has(.menu-group-title):hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Menu Group title styling */
+      .nav-menu > li > .menu-group-title, #navMenu > li > .menu-group-title { display: inline-block; padding: 0.5rem 1rem; cursor: default; user-select: none; }
+      
+      /* ========== MOBILE SUBMENU STYLES ========== */
+      @media (max-width: 768px) {
+        .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { position: static !important; transform: none !important; box-shadow: none !important; background: transparent !important; max-height: 0; overflow: hidden; opacity: 0; visibility: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; padding: 0 !important; border-radius: 0 !important; }
+        .sub-menu.mobile-expanded { max-height: 500px !important; opacity: 1 !important; visibility: visible !important; padding: 8px 0 8px 16px !important; }
+        [dir="rtl"] .sub-menu.mobile-expanded, html[lang="he"] .sub-menu.mobile-expanded { padding: 8px 16px 8px 0 !important; }
+        /* Disable hover behavior on mobile */
+        .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 0; visibility: hidden; pointer-events: none; }
+        .nav-menu li > .sub-menu.mobile-expanded, nav li > .sub-menu.mobile-expanded, .navbar li > .sub-menu.mobile-expanded, #navMenu li > .sub-menu.mobile-expanded { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+        .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { display: flex !important; flex-wrap: wrap !important; align-items: center !important; position: relative !important; min-height: 44px !important; }
+        .nav-menu li:has(.sub-menu) > a, nav li:has(.sub-menu) > a, .navbar li:has(.sub-menu) > a, #navMenu li:has(.sub-menu) > a { flex: 1 !important; min-width: 0 !important; }
+        .nav-menu li:has(.sub-menu) > .menu-group-title, nav li:has(.sub-menu) > .menu-group-title, .navbar li:has(.sub-menu) > .menu-group-title, #navMenu li:has(.sub-menu) > .menu-group-title { flex: 1 !important; min-width: 0 !important; padding: 0 !important; line-height: inherit !important; }
+        .nav-menu li:has(.sub-menu) > .sub-menu, nav li:has(.sub-menu) > .sub-menu, .navbar li:has(.sub-menu) > .sub-menu, #navMenu li:has(.sub-menu) > .sub-menu { flex-basis: 100% !important; width: 100% !important; }
+        .nav-menu li:has(.sub-menu) > a [class*="chevron"], .nav-menu li:has(.sub-menu) > a [class*="arrow"], .nav-menu li:has(.sub-menu) > a .fa-chevron-down, .nav-menu li:has(.sub-menu) > a .fa-angle-down, nav li:has(.sub-menu) > a [class*="chevron"], nav li:has(.sub-menu) > a [class*="arrow"], #navMenu li:has(.sub-menu) > a [class*="chevron"], #navMenu li:has(.sub-menu) > a [class*="arrow"] { display: none !important; visibility: hidden !important; }
+        .mobile-submenu-toggle { display: flex !important; align-items: center !important; justify-content: center !important; width: 44px !important; height: auto !important; background: transparent !important; border: none !important; cursor: pointer !important; color: var(--text-dark) !important; position: static !important; flex-shrink: 0 !important; align-self: stretch !important; z-index: 2 !important; padding: 0 !important; margin: 0 !important; }
+        .mobile-submenu-toggle::after { content: '' !important; width: 0 !important; height: 0 !important; border-left: 6px solid transparent !important; border-right: 6px solid transparent !important; border-top: 7px solid currentColor !important; transition: transform 0.3s ease !important; }
+        .mobile-submenu-toggle.expanded::after { transform: rotate(180deg) !important; }
+        .sub-menu a { padding: 10px 0 !important; display: block !important; color: var(--text-dark) !important; }
+        .navbar .sub-menu li a, nav.navbar .sub-menu li a, .zappy-products-dropdown .sub-menu a { color: var(--text-dark) !important; }
+      }
+      @media (min-width: 769px) { .mobile-submenu-toggle { display: none !important; } }
+    </style>
+
+    <style id="zappy-widget-visibility">
+      #mic-access-tool-general-button, .mic-access-tool-general-button,
+      #mic-init-access-tool .mic-access-tool-general-button, #mic-init-access-tool #mic-access-tool-general-button,
+      ._access-icon, #mic-access-tool-box, .mic-access-tool-box,
+      #mic-init-access-tool #mic-access-tool-box, div[id*="mic-access-tool-box"], ._access-menu {
+        display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;
+      }
+    </style>
+</head>
+<body>
+
+  <nav class="navbar" dir="rtl">
+  <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+    <svg class="hamburger-icon" width="24" height="24" viewbox="0 0 24 24" fill="none">
+      <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+    <svg class="close-icon" width="24" height="24" viewbox="0 0 24 24" fill="none" style="display:none;">
+      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+  </button>
+  
+  <button class="phone-header-btn" aria-label="Call">
+    <svg width="20" height="20" viewbox="0 0 24 24" fill="currentColor">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+    </svg>
+  </button>
+  
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a href="/" class="logo-link">
+        <img src="/assets/business-logo.webp" alt="מוטי ניסם" class="logo">
+      </a>
+    </div>
+    
+    <ul class="nav-menu" id="navMenu"><li><a href="/services">שירותים</a></li><li><a href="/case-studies">מקרי בוחן</a></li></ul>
+    
+    <div class="nav-cta-container">
+      <a href="/contact" class="nav-cta-btn">צור קשר</a>
+    </div>
+  </div>
+</nav>
+  
+  <main>
+    <section class="case-studies-hero-section" data-layout-spec="מקרי בוחן-hero" data-hero-type="fullscreen-scrim">
+  <div class="case-studies-hero-bg">
+    <img data-hero-bg="true" data-placeholder="case-studies-hero-bg" data-context="Cinematic dark macro shot of blurred analytics dashboard with glowing charts and data visualizations, one strong neon cyan highlight visible in background, deep bokeh effect, professional digital marketing workspace, high-end advertising campaign metrics, dramatic lighting with subtle RGB glow accents, 4K quality, photorealistic" data-preserve-bg="0" width="1920" height="1080" src="/assets/site-case-studies-hero-bg.webp" alt="לוח בקרה אנליטי עם נתוני קמפיינים">
+  </div>
+  
+  <div class="case-studies-hero-scrim" aria-hidden="true"></div>
+  
+  <div class="case-studies-hero-content">
+    <div class="case-studies-hero-text-group">
+      <h1>תוצאות שנבנות ממערכות בעלות חזרתיות</h1>
+      <h3>מטרות ברורות, בדיקות ממושמעות, ודיווח שמניע לפעולה</h3>
+      <div class="case-studies-hero-cta">
+        <a href="/contact" class="btn-primary">בקש תכנית דומה</a>
+      </div>
+    </div>
+  </div>
+  
+  <div class="case-studies-hero-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 80" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,80 L0,48 L60,48 L60,42 L120,42 L120,36 L180,36 L180,30 L240,30 L240,24 L300,24 L300,18 L360,18 L360,24 L420,24 L420,30 L480,30 L480,36 L540,36 L540,42 L600,42 L600,48 L660,48 L660,54 L720,54 L720,60 L780,60 L780,66 L840,66 L840,72 L900,72 L900,66 L960,66 L960,60 L1020,60 L1020,54 L1080,54 L1080,48 L1140,48 L1140,42 L1200,42 L1200,80 Z" fill="#06070A"></path>
+    </svg>
+  </div>
+</section>
+
+<section class="case-studies-portfolio-section" data-layout-spec="מקרי בוחן-portfolio">
+  <div class="case-studies-portfolio-container">
+    <div class="case-studies-portfolio-header">
+      <h2>ספריית תמונות מצב קמפיינים</h2>
+      <p>מבט מקרוב על קמפיינים שהניבו תוצאות מדידות – מרכישה קרה ועד רימרקטינג מתוחכם. כל כרטיס מציג זווית קריאייטיב או קהל ייעודי שהזיז את המחט בפועל.</p>
+    </div>
+
+    <div class="case-studies-portfolio-grid">
+      <article class="case-studies-portfolio-card">
+        <h3>רכישה קרה – טיפוח לידים B2B</h3>
+        <p>קמפיין לוקאלי לחברת ייעוץ פיננסי שהתמקד בקהלים פסיכוגרפיים (בעלי עסקים קטנים בגיל 35–50). שילוב וידאו קצר עם תוכן חינוכי הגדיל את שיעור ההמרה פי 2.3 בחודש הראשון.</p>
+        <p class="case-studies-portfolio-metric">ROAS: 4.8 | CPL ממוצע: ₪78</p>
+      </article>
+
+      <article class="case-studies-portfolio-card">
+        <h3>רימרקטינג דינמי – אופנה ואקססוריז</h3>
+        <p>קמפיין לחנות מקוונת שהתמקד בנטשי עגלה ומבקרים חוזרים. שימוש בקריאייטיב דינמי שהציג את המוצרים המדויקים שהלקוח צפה בהם, בשילוב הנחה לזמן מוגבל, הביא לשיפור של 180% בשיעור ההמרה.</p>
+        <p class="case-studies-portfolio-metric">ROAS: 6.2 | CPA: ₪42</p>
+      </article>
+
+      <article class="case-studies-portfolio-card">
+        <h3>לכידת חיפוש – שירותי אינסטלציה</h3>
+        <p>קמפיין Google Ads ממוקד שהתמקד במילות מפתח עם כוונת רכישה גבוהה ("אינסטלטור דחוף", "תיקון ברז מחיר"). אופטימיזציה של דפי נחיתה ושיפור Quality Score הפחיתו את CPC ב-35% תוך שמירה על נפח לידים.</p>
+        <p class="case-studies-portfolio-metric">CVR: 12.4% | CPC ממוצע: ₪3.20</p>
+      </article>
+
+      <article class="case-studies-portfolio-card">
+        <h3>ריענון קריאייטיב – רימרקטינג למוצרי טכנולוגיה</h3>
+        <p>קמפיין שהחליף קריאייטיב סטטי בסרטוני UGC (תוכן שנוצר על ידי משתמשים) ועדויות לקוחות. הגישה האותנטית הניבה עלייה של 220% בשיעור הקליקים ושיפור של 45% ב-ROAS תוך שלושה שבועות.</p>
+        <p class="case-studies-portfolio-metric">ROAS: 5.1 | CTR: 3.8%</p>
+      </article>
+
+      <article class="case-studies-portfolio-card">
+        <h3>הצעות ליד-גן – קורס דיגיטלי</h3>
+        <p>קמפיין Facebook Lead Ads לקורס שיווק דיגיטלי שהציע מדריך חינם להורדה. טפסים מקוצרים (3 שדות בלבד) ושימוש בקהלי Lookalike מדויקים הניבו 480 לידים איכותיים בתקציב של ₪12,000.</p>
+        <p class="case-studies-portfolio-metric">CPL: ₪25 | Lead-to-Sale: 18%</p>
+      </article>
+
+      <article class="case-studies-portfolio-card">
+        <h3>שירות מקומי – מוסך רכב</h3>
+        <p>קמפיין Google Local Services Ads ממוקד גיאוגרפית לאזור של 15 ק"מ סביב המוסך. שימוש בתמונות איכותיות, ביקורות חיוביות ותגובה מהירה לפניות הביא לעלייה של 340% בהזמנות חודשיות.</p>
+        <p class="case-studies-portfolio-metric">Conversion Rate: 28% | CPA: ₪68</p>
+      </article>
+    </div>
+  </div>
+
+  <div class="case-studies-portfolio-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 100" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="smokyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#06070A;stop-opacity:1"></stop>
+          <stop offset="50%" style="stop-color:#0B1020;stop-opacity:0.6"></stop>
+          <stop offset="100%" style="stop-color:#F7F8FA;stop-"></stop>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="1200" height="100" fill="url(#smokyGradient)"></rect>
+    </svg>
+  </div>
+</section>
+
+<section class="case-studies-success-stories-section" data-layout-spec="מקרי בוחן-success-stories">
+  <div class="case-studies-success-stories-container">
+    <div class="case-studies-success-stories-grid">
+      <div class="case-studies-success-stories-content">
+        <h2 class="case-studies-success-stories-title">שני דוגמאות מעמיקות</h2>
+        <p class="case-studies-success-stories-intro">כל קמפיין פרסום ממומן מספר סיפור שונה. כאן תמצאו שתי דוגמאות מפורטות שמדגימות את הגישה האסטרטגית שלנו – מהאתגר הראשוני ועד לתוצאות המדידות.</p>
+        
+        <div class="case-studies-success-stories-story">
+          <h3 class="case-studies-success-stories-story-title">סטארטאפ B2B בתחום הפינטק</h3>
+          <p class="case-studies-success-stories-story-text">החברה התמודדה עם CPL גבוה במיוחד (מעל ₪800 ללקוח פוטנציאלי) וקהל יעד מאוד מצומצם של מנהלי כספים בארגונים בינוניים. התקציב היה מוגבל והלחץ להוכיח ROI היה עצום.</p>
+          <p class="case-studies-success-stories-story-text">בנינו אסטרטגיה רב-שלבית: קמפיין מודעות וידאו קצרות בלינקדאין לבניית מודעות, מעקב ממוקד עם מודעות דינמיות, ונחיתה על דף ייעודי עם מחשבון חיסכון אינטראקטיבי. התוצאה: CPL ירד ל-₪340 תוך חודשיים, עם שיפור של 65% בשיעור המעבר לפגישות מכירה.</p>
+        </div>
+        
+        <div class="case-studies-success-stories-story">
+          <h3 class="case-studies-success-stories-story-title">רשת קמעונאות אופנה</h3>
+          <p class="case-studies-success-stories-story-text">הרשת סבלה מעונתיות קיצונית ומהתחרות עזה של מותגים גדולים יותר. האתגר: להגדיל מכירות אונליין מבלי לפגוע ברווחיות, תוך שמירה על ROAS מעל 4.5.</p>
+          <p class="case-studies-success-stories-story-text">יצרנו מערך פרסום דינמי ב-Google Shopping ו-Facebook עם קטלוג מוצרים מלא, סגמנטציה לפי התנהגות קנייה קודמת, וקמפיינים ייעודיים לכל עונה. הוספנו רימרקטינג אגרסיבי עם הנחות מותאמות אישית. ROAS זינק ל-6.8 עם גידול של 180% בהכנסות מפרסום ממומן לעסקים קטנים ובינוניים.</p>
+        </div>
+      </div>
+      
+      <div class="case-studies-success-stories-kpi-panel">
+        <div class="case-studies-success-stories-kpi-tile">
+          <p class="case-studies-success-stories-kpi-number">6.8</p>
+          <p class="case-studies-success-stories-kpi-label">ROAS ממוצע</p>
+        </div>
+        
+        <div class="case-studies-success-stories-kpi-tile">
+          <p class="case-studies-success-stories-kpi-number">₪340</p>
+          <p class="case-studies-success-stories-kpi-label">CPL ממוצע</p>
+        </div>
+        
+        <div class="case-studies-success-stories-kpi-tile">
+          <p class="case-studies-success-stories-kpi-number">12.4%</p>
+          <p class="case-studies-success-stories-kpi-label">שיעור המרה ממוצע</p>
+        </div>
+        
+        <div class="case-studies-success-stories-kpi-tile">
+          <p class="case-studies-success-stories-kpi-number">+180%</p>
+          <p class="case-studies-success-stories-kpi-label">גידול בהיקף מכירות</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="case-studies-success-stories-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 100" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="case-studies-divider-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#F7F8FA;stop-opacity:1"></stop>
+          <stop offset="50%" style="stop-color:#00E5FF;stop-opacity:0.2"></stop>
+          <stop offset="100%" style="stop-color:#F7F8FA;stop-opacity:1"></stop>
+        </linearGradient>
+      </defs>
+      <path d="M0,100 L0,60 L1200,20 L1200,100 Z" fill="#141A2A"></path>
+      <path d="M0,100 L0,60 L1200,20 L1200,100 Z" fill="#141A2A" opacity="0.85"></path>
+    </svg>
+  </div>
+</section>
+
+<section class="case-studies-reviews-section" data-layout-spec="מקרי בוחן-reviews">
+  <div class="case-studies-reviews-container">
+    <div class="case-studies-reviews-header">
+      <h2>מה לקוחות מעריכים</h2>
+      <p>בעבודה משותפת עם מוטי, עסקים מגלים שקיפות מוחלטת בדיווח, מהירות בהתאמת קמפיינים ושיפור מדיד בתוצאות. כל פרויקט מתחיל בהבנה עמוקה של היעדים ומסתיים בנתונים ברורים שמוכיחים החזר השקעה.</p>
+    </div>
+
+    <div class="case-studies-reviews-grid">
+      <div class="case-studies-review-block">
+        <h3>"הבהירות שחיפשנו בפרסום ממומן"</h3>
+        <p>לאחר חודשים של עבודה עם ספקים שלא סיפקו תשובות ברורות, מוטי הביא איתו שקיפות מלאה. כל שקל שהושקע תועד, כל שינוי בקמפיין הוסבר, והתוצאות דיברו בעד עצמן. סוף סוף יש לנו שותף אמיתי בפרסום.</p>
+      </div>
+
+      <div class="case-studies-review-block">
+        <h3>"מהירות תגובה שמשנה את המשחק"</h3>
+        <p>בשוק הדיגיטלי, זמן הוא כסף. מוטי מבין את זה לעומק - כל פנייה מטופלת תוך שעות, כל אופטימיזציה מתבצעת בזמן אמת. הרגשנו שיש מישהו שבאמת דואג לתוצאות שלנו, לא רק מנהל חשבון.</p>
+      </div>
+
+      <div class="case-studies-review-block">
+        <h3>"דיווח שמדבר בשפה שלנו"</h3>
+        <p>אנחנו לא אנשי שיווק, אנחנו בעלי עסק. מוטי הצליח לתרגם את כל המדדים המורכבים לשפה פשוטה וברורה - כמה הוצאנו, כמה הרווחנו, איפה אפשר לשפר. הדוחות שלו הפכו לחלק מהישיבות ההנהלה שלנו.</p>
+      </div>
+
+      <div class="case-studies-review-block">
+        <h3>"שיפור מדיד בכל קמפיין"</h3>
+        <p>לא מדובר בהבטחות ריקות - מוטי מציג נתונים קשים. ראינו ירידה של 40% בעלות לרכישה תוך שלושה חודשים, וזה רק ההתחלה. הגישה המבוססת-נתונים שלו גרמה לנו לחשוב מחדש על כל התקציב השיווקי.</p>
+      </div>
+    </div>
+
+    <div class="case-studies-reviews-closing">
+      <p>מעוניינים לשמוע עוד ממליצים או לקבל תוכנית מותאמת לעסק שלכם? בואו נדבר על איך אנחנו יכולים להשיג ביחד את היעדים שלכם בפרסום ממומן לעסקים קטנים ובינוניים.</p>
+    </div>
+  </div>
+
+  <div class="case-studies-reviews-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 60" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,60 L0,45 Q150,38 300,42 T600,40 Q750,42 900,38 T1200,42 L1200,60 Z" fill="#0B1020"></path>
+    </svg>
+  </div>
+</section>
+
+<section class="case-studies-cta-section" data-layout-spec="מקרי בוחן-cta">
+  <div class="case-studies-cta-container">
+    <h2 class="case-studies-cta-headline">רוצים תוצאות כאלה גם אצלכם?</h2>
+    <p class="case-studies-cta-description">נבנה יחד תוכנית פעולה ברורה ומדויקת שתוביל את העסק שלכם לתוצאות מדידות ומשמעותיות. אין הבטחות ריקות - רק אסטרטגיה מבוססת נתונים והתאמה מלאה ליעדים העסקיים שלכם.</p>
+    <a href="/contact" class="case-studies-cta-button btn-primary">צור קשר עכשיו</a>
+  </div>
+</section>
+  </main>
+  
+  <footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-top">
+      <div class="footer-column footer-about">
+        <img src="/assets/business-logo.webp" alt="מוטי ניסם" class="logo">
+        <p class="footer-description">מומחה בשיווק דיגיטלי, מוביל עסקים להצלחה ברשת עם אסטרטגיות מותאמות אישית ותוצאות מדידות.</p>
+      </div>
+      
+      <div class="footer-column footer-links">
+        <h3 class="footer-heading">קישורים מהירים</h3>
+        <ul class="footer-nav">
+          <li><a href="/services">שירותים</a></li>
+          <li><a href="/case-studies">מקרי בוחן</a></li>
+          <li><a href="/contact">צור קשר</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column footer-contact">
+        <h3 class="footer-heading">יצירת קשר</h3>
+        <ul class="contact-list">
+          <li>
+            <i class="fas fa-envelope"></i>
+            <a href="mailto:[business_email]">[business_email]</a>
+          </li>
+          <li>
+            <i class="fas fa-phone"></i>
+            <a href="tel:[business_phone]">[business_phone]</a>
+          </li>
+          <li><a href="/"><i class="fas fa-map-marker-alt"></i>
+            <span>[business_address]</span></a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column footer-social">
+        <h3 class="footer-heading">עקבו אחרינו</h3>
+        <div class="social-links">
+          <a href="[facebook_handle]" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="[instagram_handle]" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="[whatsapp_handle]" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-whatsapp"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <div class="footer-bottom-content">
+        <p class="copyright">© 2026 מוטי ניסם. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a href="/privacy">Privacy Policy</a>
+          <span class="separator">|</span>
+          <a href="/terms">Terms &amp; Conditions</a>
+          <span class="separator">|</span>
+          <a href="/accessibility">Accessibility</a>
+          <span class="separator">|</span>
+          <a href="https://zappy5.com" target="_blank" class="zappy-attribution">Generated by Zappy</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+  
+  <a href="https://wa.me/[whatsapp_handle]" class="whatsapp-float" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  
+  <div data-integration="accessibility:toolbar"></div>
+
+    <script src="/script.js"></script>
+
+    <script id="zappy-mobile-submenu-script">
+    (function() {
+      function initMobileSubmenuToggles() {
+        if (window.innerWidth > 768) {
+          document.querySelectorAll('.mobile-submenu-toggle').forEach(function(btn) { btn.remove(); });
+          document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) { menu.classList.remove('mobile-expanded'); });
+          return;
+        }
+        var items = document.querySelectorAll('.nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu)');
+        items.forEach(function(li) {
+          if (li.querySelector('.mobile-submenu-toggle')) return;
+          var submenu = li.querySelector('.sub-menu');
+          var parentLink = li.querySelector(':scope > a');
+          if (!submenu || !parentLink) return;
+          var toggleBtn = document.createElement('button');
+          toggleBtn.className = 'mobile-submenu-toggle';
+          toggleBtn.setAttribute('aria-label', 'Toggle submenu');
+          toggleBtn.setAttribute('type', 'button');
+          parentLink.insertAdjacentElement('afterend', toggleBtn);
+          toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) {
+              if (menu !== submenu) { menu.classList.remove('mobile-expanded'); var t = menu.parentElement.querySelector('.mobile-submenu-toggle'); if(t) t.classList.remove('expanded'); }
+            });
+            submenu.classList.toggle('mobile-expanded');
+            toggleBtn.classList.toggle('expanded');
+          });
+        });
+      }
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMobileSubmenuToggles); }
+      else { initMobileSubmenuToggles(); }
+      var resizeTimer; window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(initMobileSubmenuToggles, 250); });
+      // Re-initialize when mobile menu becomes visible (MutationObserver)
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes') {
+            var target = mutation.target;
+            if (target.classList && (target.classList.contains('active') || target.classList.contains('open'))) {
+              setTimeout(initMobileSubmenuToggles, 100);
+            }
+          }
+        });
+      });
+      setTimeout(function() {
+        document.querySelectorAll('.mobile-menu, .nav-menu, #navMenu, nav').forEach(function(menu) {
+          observer.observe(menu, { attributes: true, attributeFilter: ['class', 'style'] });
+        });
+      }, 500);
+    })();
+    </script>
+
+    <script id="zappy-navbar-scroll-effect">
+    (function(){var nb=document.querySelector('nav.navbar,.navbar:not(.zappy-catalog-menu)');var cm=document.querySelector('.zappy-catalog-menu');if(!nb)return;var fb='rgba(15,17,21,0.85)';var th=60;nb.style.transition='background 0.3s ease,backdrop-filter 0.3s ease,-webkit-backdrop-filter 0.3s ease,box-shadow 0.3s ease';if(cm)cm.style.transition='background 0.3s ease,backdrop-filter 0.3s ease,-webkit-backdrop-filter 0.3s ease';function onS(){var y=window.scrollY||window.pageYOffset;if(y>th){nb.style.background=fb;nb.style.backdropFilter='blur(12px)';nb.style.webkitBackdropFilter='blur(12px)';nb.style.boxShadow='0 2px 16px rgba(0,0,0,0.12)';if(cm){cm.style.background=fb;cm.style.backdropFilter='blur(12px)';cm.style.webkitBackdropFilter='blur(12px)';}}else{nb.style.background='transparent';nb.style.backdropFilter='none';nb.style.webkitBackdropFilter='none';nb.style.boxShadow='none';if(cm){cm.style.background='transparent';cm.style.backdropFilter='none';cm.style.webkitBackdropFilter='none';}}}window.addEventListener('scroll',onS,{passive:true});onS();})();
+    </script>
+</body>
+</html>
